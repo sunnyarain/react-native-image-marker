@@ -86,18 +86,41 @@ public final class ImageMarker: NSObject, RCTBridgeModule {
         return "ImageMarker";
     }
     
-    func saveImageForMarker(_ image: UIImage, with opts: Options) -> String? {
+    // func saveImageForMarker(_ image: UIImage, with opts: Options) -> String? {
+    //     let fullPath = generateCacheFilePathForMarker(Utils.getExt(opts.saveFormat), opts.filename)
+    //     if let saveFormat = opts.saveFormat, saveFormat == "base64" {
+    //         let base64String = image.pngData()?.base64EncodedString(options: .lineLength64Characters)
+    //         return "data:image/png;base64,\(base64String ?? "")"
+    //     }
+    //     let data = Utils.isPng(opts.saveFormat) ? image.pngData() : image.jpegData(compressionQuality: CGFloat(opts.quality) / 100.0)
+    //     let fileManager = FileManager.default
+    //     fileManager.createFile(atPath: fullPath, contents: data, attributes: nil)
+    //     return fullPath
+    // }
+    
+    func saveImageForMarker(_ image: UIImage, with opts: Options) -> [String: Any] {
         let fullPath = generateCacheFilePathForMarker(Utils.getExt(opts.saveFormat), opts.filename)
-        if let saveFormat = opts.saveFormat, saveFormat == "base64" {
-            let base64String = image.pngData()?.base64EncodedString(options: .lineLength64Characters)
-            return "data:image/png;base64,\(base64String ?? "")"
-        }
+      
+//        if let saveFormat = opts.saveFormat, saveFormat == "base64" {
+//            let base64String = image.pngData()?.base64EncodedString(options: .lineLength64Characters)
+//            return "data:image/png;base64,\(base64String ?? "")"
+//        }
+      
+        let base64String = image.pngData()?.base64EncodedString(options: .lineLength64Characters)
+        let base64S = "data:image/png;base64,\(base64String ?? "")"
+    
         let data = Utils.isPng(opts.saveFormat) ? image.pngData() : image.jpegData(compressionQuality: CGFloat(opts.quality) / 100.0)
         let fileManager = FileManager.default
         fileManager.createFile(atPath: fullPath, contents: data, attributes: nil)
-        return fullPath
+       
+        var markerOutput: [String: Any] = [:]
+        markerOutput["uri"] = fullPath
+        markerOutput["base64"] = "data:image/png;base64,\(base64S)"    
+
+        return markerOutput
     }
-    
+
+
     func generateCacheFilePathForMarker(_ ext: String?, _ filename: String?) -> String {
         let paths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
         let cacheDirectory = paths[0]
