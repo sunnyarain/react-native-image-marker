@@ -120,6 +120,19 @@ class ImageMarkerManager(private val context: ReactApplicationContext) : ReactCo
         icon.compress(getSaveFormat(opts.saveFormat), opts.quality, bos)
         bos.flush()
         bos.close()
+        
+        //New Code
+        val base64Stream = ByteArrayOutputStream()
+        icon.compress(CompressFormat.PNG, opts.quality, base64Stream)
+        base64Stream.flush()
+        base64Stream.close()
+        val bitmapBytes = base64Stream.toByteArray()
+        val result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT)
+
+        val markeroutput: WritableMap = WritableNativeMap()
+        markeroutput.putString("uri",dest)
+        markeroutput.putString("base64","data:image/png;base64,$result")
+
         //保存成功的
         promise.resolve(dest)
       }
